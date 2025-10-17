@@ -13,7 +13,7 @@ f = Fernet(FERNET_KEY.encode())
 
 DB = "database.db"
 
-# Crear la base de datos (si no existe)
+# Crear la base de datos si no existe
 def init_db():
     conn = sqlite3.connect(DB)
     conn.execute("""
@@ -26,17 +26,23 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Llamar a la función al iniciar el servidor
+# Inicializar la base de datos al inicio
 with app.app_context():
     init_db()
 
-# Función para obtener la IP del cliente
+# 🔹 Ruta principal (para probar que el backend funciona)
+@app.route("/")
+def home():
+    return "<h2>✅ Backend de Mi Salud activo</h2><p>Usa /log-ip o /all para probar las funciones.</p>"
+
+# Obtener la IP del cliente
 def get_ip(req):
     xff = req.headers.get("X-Forwarded-For", "")
     if xff:
         return xff.split(",")[0].strip()
     return req.remote_addr
 
+# Registrar una IP encriptada
 @app.route("/log-ip", methods=["POST"])
 def log_ip():
     ip = get_ip(request)
@@ -47,6 +53,7 @@ def log_ip():
     conn.close()
     return jsonify({"status": "ok", "ip_encrypted": ip_enc})
 
+# Ver todas las IPs encriptadas
 @app.route("/all", methods=["GET"])
 def all_ips():
     conn = sqlite3.connect(DB)
