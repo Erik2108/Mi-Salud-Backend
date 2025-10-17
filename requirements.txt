@@ -1,3 +1,5 @@
 flask
 cryptography
 gunicorn
+flask-cors
+
