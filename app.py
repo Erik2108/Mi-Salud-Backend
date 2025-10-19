@@ -3,20 +3,18 @@ from flask_cors import CORS
 from cryptography.fernet import Fernet
 import sqlite3, os
 
-# Inicializar la app
 app = Flask(__name__)
-CORS(app)  # 👈 Habilita CORS para todas las rutas
+CORS(app) 
 
-# Generar o recuperar la clave de cifrado
 FERNET_KEY = os.environ.get("FERNET_KEY")
 if not FERNET_KEY:
     FERNET_KEY = Fernet.generate_key().decode()
-    print("🔑 FERNET_KEY generada (guárdala):", FERNET_KEY)
+    print("FERNET_KEY generada (guardar):", FERNET_KEY)
 f = Fernet(FERNET_KEY.encode())
 
 DB = "database.db"
 
-# Crear la base de datos si no existe
+# Base de datos si no existe
 def init_db():
     conn = sqlite3.connect(DB)
     conn.execute("""
@@ -36,7 +34,7 @@ with app.app_context():
 # 🔹 Ruta principal
 @app.route("/")
 def home():
-    return "<h2>✅ Backend de Mi Salud activo</h2><p>Usa /log-ip o /all para probar las funciones.</p>"
+    return "<h2>Backend de Mi Salud activo</h2><p>https://mi-salud-backend-fmuj.onrender.com/all para ver la IP encriptada</p>"
 
 # Obtener la IP real del cliente
 def get_ip(req):
@@ -45,7 +43,7 @@ def get_ip(req):
         return xff.split(",")[0].strip()
     return req.remote_addr
 
-# 🔹 Registrar una IP encriptada (POST)
+# Registrar una IP encriptada (POST)
 @app.route("/log-ip", methods=["POST"])
 def log_ip():
     ip = get_ip(request)
@@ -66,7 +64,7 @@ def log_ip():
     return jsonify({"status": "ok", "ip_encrypted": ip_enc})
 
 
-# 🔹 Ver todas las IPs guardadas
+# Ver todas las IPs guardadas
 @app.route("/all", methods=["GET"])
 def all_ips():
     conn = sqlite3.connect(DB)
@@ -76,7 +74,7 @@ def all_ips():
     conn.close()
     return jsonify(data)
 
-# 🔹 Encriptar IP fija simulada (opcional)
+# Encriptar IP fija simulada (opcional)
 @app.route("/encriptar-ip-fija")
 def encriptar_ip_fija():
     ip_fija = "181.51.233.120"  # IP simulada de la clínica
@@ -86,4 +84,5 @@ def encriptar_ip_fija():
 # Iniciar el servidor
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
 
