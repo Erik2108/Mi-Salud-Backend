@@ -51,12 +51,20 @@ def log_ip():
     ip = get_ip(request)
     ip_enc = f.encrypt(ip.encode()).decode()
 
-    conn = sqlite3.connect(DB)
-    conn.execute("INSERT INTO accesos (ip_enc) VALUES (?)", (ip_enc,))
-    conn.commit()
-    conn.close()
+    print("🧠 IP recibida:", ip)
+    print("🔒 IP encriptada:", ip_enc)
+
+    try:
+        conn = sqlite3.connect(DB)
+        conn.execute("INSERT INTO accesos (ip_enc) VALUES (?)", (ip_enc,))
+        conn.commit()
+        conn.close()
+        print("✅ IP guardada en la base de datos.")
+    except Exception as e:
+        print("⚠️ Error guardando IP:", e)
 
     return jsonify({"status": "ok", "ip_encrypted": ip_enc})
+
 
 # 🔹 Ver todas las IPs guardadas
 @app.route("/all", methods=["GET"])
@@ -78,3 +86,4 @@ def encriptar_ip_fija():
 # Iniciar el servidor
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
