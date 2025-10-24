@@ -9,12 +9,12 @@ CORS(app)
 FERNET_KEY = os.environ.get("FERNET_KEY")
 if not FERNET_KEY:
     FERNET_KEY = Fernet.generate_key().decode()
-    print("FERNET_KEY generada (guardar):", FERNET_KEY)
+    print("FERNET_KEY generada:", FERNET_KEY)
 f = Fernet(FERNET_KEY.encode())
 
 DB = "database.db"
 
-# Base de datos si no existe
+# Base de datos
 def init_db():
     conn = sqlite3.connect(DB)
     conn.execute("""
@@ -31,7 +31,7 @@ def init_db():
 with app.app_context():
     init_db()
 
-# 🔹 Ruta principal
+# Ruta principal
 @app.route("/")
 def home():
     return "<h2>Backend de Mi Salud activo</h2><p>https://mi-salud-backend-fmuj.onrender.com/all para ver la IP encriptada</p>"
@@ -43,7 +43,7 @@ def get_ip(req):
         return xff.split(",")[0].strip()
     return req.remote_addr
 
-# Registrar una IP encriptada (POST)
+# Registrar una IP encriptada
 @app.route("/log-ip", methods=["POST"])
 def log_ip():
     ip = get_ip(request)
@@ -64,7 +64,7 @@ def log_ip():
     return jsonify({"status": "ok", "ip_encrypted": ip_enc})
 
 
-# Ver todas las IPs guardadas
+# Ver todas las IP guardadas
 @app.route("/all", methods=["GET"])
 def all_ips():
     conn = sqlite3.connect(DB)
@@ -74,16 +74,17 @@ def all_ips():
     conn.close()
     return jsonify(data)
 
-# Encriptar IP fija simulada (opcional)
+# Encriptar IP fija simulada
 @app.route("/encriptar-ip-fija")
 def encriptar_ip_fija():
-    ip_fija = "181.51.233.120"  # IP simulada de la clínica
+    ip_fija = "181.51.233.120"  # IP simulada de la clínica       
     ip_enc = f.encrypt(ip_fija.encode()).decode()
     return jsonify({"ip_fija": ip_fija, "ip_encriptada": ip_enc})
 
 # Iniciar el servidor
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
 
 
 
